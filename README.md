@@ -1,2 +1,2 @@
-# Wypo-eczalnia-samochod-w
+# Wypozeczalnia-samochodow
 Projekt zaliczeniowy - Podstawy Programowania w Językach Obiektowych
