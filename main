@@ -1,0 +1,166 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace CarRental
+{
+    // Klasa reprezentująca samochód
+    public class Car
+    {
+        public int Id { get; set; }
+        public string Brand { get; set; }
+        public string Model { get; set; }
+        public int Year { get; set; }
+        public bool IsAvailable { get; set; }
+
+        public Car(int id, string brand, string model, int year)
+        {
+            Id = id;
+            Brand = brand;
+            Model = model;
+            Year = year;
+            IsAvailable = true;
+        }
+
+        public override string ToString()
+        {
+            return $"[{Id}] {Brand} {Model} ({Year}) - {(IsAvailable ? "Dostępny" : "Wypożyczony")}";
+        }
+    }
+
+    // Klasa reprezentująca klienta
+    public class Customer
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Phone { get; set; }
+
+        public Customer(int id, string name, string phone)
+        {
+            Id = id;
+            Name = name;
+            Phone = phone;
+        }
+
+        public override string ToString()
+        {
+            return $"[{Id}] {Name} - {Phone}";
+        }
+    }
+
+    // Klasa reprezentująca wypożyczenie
+    public class Rental
+    {
+        public int RentalId { get; set; }
+        public Car Car { get; set; }
+        public Customer Customer { get; set; }
+        public DateTime RentalDate { get; set; }
+        public DateTime? ReturnDate { get; set; }
+
+        public Rental(int rentalId, Car car, Customer customer, DateTime rentalDate)
+        {
+            RentalId = rentalId;
+            Car = car;
+            Customer = customer;
+            RentalDate = rentalDate;
+            ReturnDate = null;
+        }
+
+        public override string ToString()
+        {
+            return $"[{RentalId}] Samochód: {Car.Brand} {Car.Model}, Klient: {Customer.Name}, Data wypożyczenia: {RentalDate}, Data zwrotu: {(ReturnDate.HasValue ? ReturnDate.Value.ToString() : "Brak")}";
+        }
+    }
+
+    // Klasa zarządzająca logiką wypożyczalni
+    public class RentalService
+    {
+        private List<Car> cars = new List<Car>();
+        private List<Rental> rentals = new List<Rental>();
+        private int nextCarId = 1;
+        private int nextCustomerId = 1;
+        private int nextRentalId = 1;
+
+        public void AddCar(string brand, string model, int year)
+        {
+            cars.Add(new Car(nextCarId++, brand, model, year));
+        }
+
+        public void RentCar(int carId, string customerName, string customerPhone)
+        {
+            Car car = cars.FirstOrDefault(c => c.Id == carId && c.IsAvailable);
+            if (car != null)
+            {
+                car.IsAvailable = false;
+                Customer customer = new Customer(nextCustomerId++, customerName, customerPhone);
+                rentals.Add(new Rental(nextRentalId++, car, customer, DateTime.Now));
+                Console.WriteLine($"Samochód {car.Brand} {car.Model} został wypożyczony klientowi {customer.Name}.");
+            }
+            else
+            {
+                Console.WriteLine("Samochód jest niedostępny lub nie istnieje.");
+            }
+        }
+
+        public void ReturnCar(int rentalId)
+        {
+            Rental rental = rentals.FirstOrDefault(r => r.RentalId == rentalId && r.ReturnDate == null);
+            if (rental != null)
+            {
+                rental.Car.IsAvailable = true;
+                rental.ReturnDate = DateTime.Now;
+                Console.WriteLine($"Samochód {rental.Car.Brand} {rental.Car.Model} został zwrócony.");
+            }
+            else
+            {
+                Console.WriteLine("Wypożyczenie nie istnieje lub samochód już został zwrócony.");
+            }
+        }
+
+        public void ShowAvailableCars()
+        {
+            Console.WriteLine("Dostępne samochody:");
+            foreach (var car in cars.Where(c => c.IsAvailable))
+            {
+                Console.WriteLine(car);
+            }
+        }
+
+        public void ShowRentals()
+        {
+            Console.WriteLine("Historia wypożyczeń:");
+            foreach (var rental in rentals)
+            {
+                Console.WriteLine(rental);
+            }
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            RentalService rentalService = new RentalService();
+
+            // Dodawanie samochodów
+            rentalService.AddCar("Toyota", "Corolla", 2020);
+            rentalService.AddCar("Ford", "Focus", 2018);
+            rentalService.AddCar("BMW", "X5", 2021);
+
+            // Wyświetlanie dostępnych samochodów
+            rentalService.ShowAvailableCars();
+
+            // Wypożyczanie samochodu
+            rentalService.RentCar(1, "Jan Kowalski", "123-456-789");
+
+            // Wyświetlanie dostępnych samochodów po wypożyczeniu
+            rentalService.ShowAvailableCars();
+
+            // Zwracanie samochodu
+            rentalService.ReturnCar(1);
+
+            // Wyświetlanie historii wypożyczeń
+            rentalService.ShowRentals();
+        }
+    }
+}
