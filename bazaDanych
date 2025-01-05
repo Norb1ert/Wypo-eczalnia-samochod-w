@@ -1,0 +1,19 @@
+drop database wypozyczenia;
+#Zapytania do utowrzenia bazy danych:
+#1
+CREATE DATABASE IF NOT EXISTS wypozyczenia;
+#2
+USE wypozyczenia;
+#3
+CREATE TABLE IF NOT EXISTS skutery (id_skutera int primary key AUTO_INCREMENT,rok_produkcji year,stan_naladowania float,lokal_szer float,lokal_dlug float);
+#4
+CREATE TABLE IF NOT EXISTS uzytkownicy (id_uzytk int primary key AUTO_INCREMENT,nazwa varchar(40),email varchar(80));
+#5
+CREATE TABLE IF NOT EXISTS wypozyczenia (id_wypozyczenia int primary key AUTO_INCREMENT,id_skutera int,id_uzytk int,data_wypozyczenia DATETIME,data_oddania DATETIME, 
+FOREIGN KEY (id_skutera) REFERENCES skutery(id_skutera),
+FOREIGN KEY (id_uzytk) REFERENCES uzytkownicy(id_uzytk));
+
+insert into uzytkownicy values (null,'marrr3k','marrr3k@wp.pl');
+insert into skutery values (null,2010,0.5,52.2279687,21.0123081);
+
+insert into wypozyczenia values (null,1,1,'2025-01-01 12:12:12','2025-01-01 15:12:12');
